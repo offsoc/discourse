@@ -6,7 +6,7 @@ source "https://rubygems.org"
 
 gem "bootsnap", require: false, platform: :mri
 
-gem "actionmailer", "~> 7.1.0"
+gem "actionmailer", "~> 7.1.4"
 gem "actionpack", "~> 7.1.0"
 gem "actionview", "~> 7.1.0"
 gem "activemodel", "~> 7.1.0"
