@@ -86,7 +86,12 @@ module Migrations::Database::Schema
     end
 
     def datatype_for(column)
-      datatype = @global.modified_datatype(column.name) || column.type
+      datatype =
+        @global.modified_datatype(column.name) ||
+          begin
+            is_array_type = column.sql_type_metadata.sql_type.end_with?("[]")
+            is_array_type ? :json : column.type
+          end
 
       case datatype
       when :binary

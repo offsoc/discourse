@@ -37,7 +37,7 @@ CREATE TABLE user_emails
 
 CREATE TABLE user_options
 (
-    user_id                              NUMERIC  NOT NULL PRIMARY KEY,
+    user_id                              NUMERIC   NOT NULL PRIMARY KEY,
     allow_private_messages               BOOLEAN,
     auto_track_topics_after_msecs        INTEGER,
     automatically_unpin_topics           BOOLEAN,
@@ -82,14 +82,14 @@ CREATE TABLE user_options
     notification_level_when_replying     INTEGER,
     oldest_search_log_date               DATETIME,
     only_chat_push_notifications         BOOLEAN,
-    seen_popups                          INTEGER,
+    seen_popups                          JSON_TEXT,
     show_thread_title_prompts            BOOLEAN,
     sidebar_link_to_filtered_list        BOOLEAN,
     sidebar_show_count_of_new_items      BOOLEAN,
     skip_new_user_tips                   BOOLEAN,
     text_size_key                        INTEGER,
     text_size_seq                        INTEGER,
-    theme_ids                            INTEGER,
+    theme_ids                            JSON_TEXT,
     theme_key_seq                        INTEGER,
     timezone                             TEXT,
     title_count_mode_key                 INTEGER,
