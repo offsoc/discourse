@@ -24,6 +24,10 @@ schema:
           - "created_at"
       primary_key_column_names: [ "user_id" , "email" ]
     user_options:
+      columns:
+        exclude:
+          - "last_redirected_to_top_at"
+          - "theme_key_seq"
       primary_key_column_names: [ "user_id" ]
     users:
       columns:

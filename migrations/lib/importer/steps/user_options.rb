@@ -29,7 +29,44 @@ module Migrations::Importer::Steps
       hide_presence: SiteSetting.default_hide_presence,
       sidebar_link_to_filtered_list: SiteSetting.default_sidebar_link_to_filtered_list,
       sidebar_show_count_of_new_items: SiteSetting.default_sidebar_show_count_of_new_items,
+      allow_private_messages: true,
     }
+
+    #  text_size_key                        :integer          default(0), not null
+    #  email_level                          :integer          default(1), not null
+    #  email_messages_level                 :integer          default(0), not null
+    #  title_count_mode_key                 :integer          default(0), not null
+    #  enable_defer                         :boolean          default(FALSE), not null
+    #  timezone                             :string
+    #  enable_allowed_pm_users              :boolean          default(FALSE), not null
+    #  dark_scheme_id                       :integer
+    #  skip_new_user_tips                   :boolean          default(FALSE), not null
+    #  color_scheme_id                      :integer
+    #  default_calendar                     :integer          default("none_selected"), not null
+    #  chat_enabled                         :boolean          default(TRUE), not null
+    #  only_chat_push_notifications         :boolean
+    #  oldest_search_log_date               :datetime
+    #  chat_sound                           :string
+    #  dismissed_channel_retention_reminder :boolean
+    #  dismissed_dm_retention_reminder      :boolean
+    #  bookmark_auto_delete_preference      :integer          default(3), not null
+    #  ignore_channel_wide_mention          :boolean
+    #  chat_email_frequency                 :integer          default(1), not null
+    #  enable_experimental_sidebar          :boolean          default(FALSE)
+    #  seen_popups                          :integer          is an Array
+    #  chat_header_indicator_preference     :integer          default(0), not null
+    #  sidebar_link_to_filtered_list        :boolean          default(FALSE), not null
+    #  sidebar_show_count_of_new_items      :boolean          default(FALSE), not null
+    #  watched_precedence_over_muted        :boolean
+    #  chat_separate_sidebar_mode           :integer          default(0), not null
+    #  topics_unread_when_closed            :boolean          default(TRUE), not null
+    #  show_thread_title_prompts            :boolean          default(TRUE), not null
+    #  enable_smart_lists                   :boolean          default(TRUE), not null
+    #  hide_profile                         :boolean          default(FALSE), not null
+    #  hide_presence                        :boolean          default(FALSE), not null
+    #  chat_send_shortcut                   :integer          default(0), not null
+    #  chat_quick_reaction_type             :integer          default(0), not null
+    #  chat_quick_reactions_custom          :string
 
     depends_on :users
 
@@ -61,7 +98,6 @@ module Migrations::Importer::Steps
                    hide_profile_and_presence
                    homepage_id
                    include_tl0_in_digests
-                   last_redirected_to_top_at
                    like_notification_frequency
                    mailing_list_mode
                    mailing_list_mode_frequency
@@ -75,7 +111,6 @@ module Migrations::Importer::Steps
                    text_size_key
                    text_size_seq
                    theme_ids
-                   theme_key_seq
                    timezone
                    title_count_mode_key
                    topics_unread_when_closed
@@ -122,10 +157,24 @@ module Migrations::Importer::Steps
       return nil if @existing_user_ids.include?(row[:user_id])
 
       row[:user_id] = row[:mapped_user_id]
-      row[:seen_popups] = JSON.parse(row[:seen_popups]) if row[:seen_popups]
-      row[:theme_ids] = JSON.parse(row[:theme_ids]) if row[:theme_ids]
+      row[:theme_ids] = row[:theme_ids] ? JSON.parse(row[:theme_ids]) : []
 
       DEFAULTS.each { |key, value| row[key] = value if row[key].nil? }
+
+      row[:seen_popups] = (
+        if row[:skip_new_user_tips]
+          [-1]
+        elsif row[:seen_popups]
+          JSON.parse(row[:seen_popups])
+        else
+          []
+        end
+      )
+
+      row[:hide_profile_and_presence] = row[:hide_profile] || row[:hide_presence]
+
+      # TODO Validate `row[:homepage_id]` against `UserOption::HOMEPAGES` when we have enums
+      # TODO Validate `row[:text_size]` against `UserOption.text_sizes` when we have enums
 
       super
     end
