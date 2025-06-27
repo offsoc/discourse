@@ -1,0 +1,10 @@
+module Migrations::Database::IntermediateDB::Enums
+  module SiteSettingAction
+    extend Migrations::Enum
+
+    UPDATE: Integer
+    MERGE: Integer
+
+    def self.valid?: (Integer value) -> bool
+  end
+end

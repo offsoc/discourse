@@ -48,6 +48,7 @@ module Migrations::Database::Schema
       output_stream.puts value_placeholders(columns)
       output_stream.puts "      )"
       output_stream.puts "    SQL"
+      output_stream.puts "    private_constant :SQL"
       output_stream.puts
       output_stream.puts "    def self.create("
       output_stream.puts method_parameters(columns)
