@@ -8,9 +8,27 @@ module Migrations::Database::Schema
     end
 
     def load_schema
+      enums = load_enums
+      tables = load_tables(enums)
+      Definition.new(tables:, enums:)
+    end
+
+    private
+
+    def load_enums
+      enums =
+        @schema_config[:enums].map do |name, config|
+          values = config[:values] || eval(config[:source]) # rubocop:disable Security/Eval
+          EnumDefinition.new(name.to_s, values)
+        end
+
+      enums || []
+    end
+
+    def load_tables(enums)
       @db = ActiveRecord::Base.lease_connection
 
-      schema = []
+      tables = []
       existing_table_names = @db.tables.to_set
 
       @schema_config[:tables].sort.each do |table_name, config|
@@ -24,17 +42,15 @@ module Migrations::Database::Schema
         end
 
         if existing_table_names.include?(table_name)
-          schema << table(table_name, config, table_alias)
+          tables << table(table_name, config, table_alias)
         end
       end
 
       @db = nil
       ActiveRecord::Base.release_connection
 
-      schema
+      tables
     end
-
-    private
 
     def table(table_name, config, table_alias = nil)
       primary_key_column_names =

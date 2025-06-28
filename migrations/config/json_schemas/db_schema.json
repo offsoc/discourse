@@ -36,12 +36,20 @@
         },
         "models_namespace": {
           "type": "string"
+        },
+        "enums_directory": {
+          "type": "string"
+        },
+        "enums_namespace": {
+          "type": "string"
         }
       },
       "required": [
         "schema_file",
         "models_directory",
-        "models_namespace"
+        "models_namespace",
+        "enums_directory",
+        "enums_namespace"
       ]
     },
     "schema": {
@@ -264,9 +272,40 @@
             }
           },
           "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
+        },
+        "enums": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "values": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "anyOf": [
+                {
+                  "required": [
+                    "source"
+                  ]
+                },
+                {
+                  "required": [
+                    "values"
+                  ]
+                }
+              ]
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
     },
     "plugins": {
       "type": "array",

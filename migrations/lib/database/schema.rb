@@ -2,6 +2,7 @@
 
 module Migrations::Database
   module Schema
+    Definition = Data.define(:tables, :enums)
     Table =
       Data.define(:name, :columns, :indexes, :primary_key_column_names) do
         def sorted_columns
@@ -10,6 +11,7 @@ module Migrations::Database
       end
     Column = Data.define(:name, :datatype, :nullable, :max_length, :is_primary_key)
     Index = Data.define(:name, :column_names, :unique, :condition)
+    EnumDefinition = Data.define(:name, :values)
 
     class ConfigError < StandardError
     end
@@ -170,6 +172,23 @@ module Migrations::Database
       else
         identifier
       end
+    end
+
+    def self.format_ruby_files(path)
+      glob_pattern = File.join(path, "*.rb")
+
+      system(
+        "bundle",
+        "exec",
+        "stree",
+        "write",
+        glob_pattern,
+        exception: true,
+        out: File::NULL,
+        err: File::NULL,
+      )
+    rescue StandardError
+      raise "Failed to run `bundle exec stree write '#{glob_pattern}'`"
     end
   end
 end

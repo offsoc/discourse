@@ -14,23 +14,6 @@ module Migrations::Database::Schema
       "#{table.name.singularize}.rb"
     end
 
-    def self.format_files(path)
-      glob_pattern = File.join(path, "**/*.rb")
-
-      system(
-        "bundle",
-        "exec",
-        "stree",
-        "write",
-        glob_pattern,
-        exception: true,
-        out: File::NULL,
-        err: File::NULL,
-      )
-    rescue StandardError
-      raise "Failed to run `bundle exec stree write '#{glob_pattern}'`"
-    end
-
     def output_table(table, output_stream)
       columns = table.sorted_columns
 
@@ -65,7 +48,7 @@ module Migrations::Database::Schema
     private
 
     def to_singular_classname(snake_case_string)
-      snake_case_string.singularize.camelize
+      snake_case_string.downcase.singularize.camelize
     end
 
     def column_names(columns)
