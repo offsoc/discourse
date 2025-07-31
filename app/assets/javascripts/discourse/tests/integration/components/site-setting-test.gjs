@@ -204,6 +204,14 @@ module("Integration | Component | site-setting", function (hooks) {
     assert.dom(".desc.site-setting").hasTextContaining("Update in progress");
 
     await publishToMessageBus("default_categories_test", {
+      status: "enqueued",
+      progress: "10/100",
+    });
+
+    assert.dom(".desc.site-setting").hasTextContaining("Update in progress");
+    assert.dom(".desc.site-setting").hasTextContaining("10/100");
+
+    await publishToMessageBus("default_categories_test", {
       status: "completed",
     });
     assert.dom(".desc.site-setting").hasTextContaining("Update completed");
@@ -227,6 +235,14 @@ module("Integration | Component | site-setting", function (hooks) {
 
     await publishToMessageBus("default_tags_test", { status: "enqueued" });
     assert.dom(".desc.site-setting").hasTextContaining("Update in progress");
+
+    await publishToMessageBus("default_tags_test", {
+      status: "enqueued",
+      progress: "10/100",
+    });
+
+    assert.dom(".desc.site-setting").hasTextContaining("Update in progress");
+    assert.dom(".desc.site-setting").hasTextContaining("10/100");
 
     await publishToMessageBus("default_tags_test", { status: "completed" });
     assert.dom(".desc.site-setting").hasTextContaining("Update completed");

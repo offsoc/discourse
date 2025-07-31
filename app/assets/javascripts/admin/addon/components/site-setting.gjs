@@ -57,6 +57,7 @@ export default class SiteSettingComponent extends Component {
 
   @tracked isSecret = null;
   @tracked status = null;
+  @tracked progress = null;
   updateExistingUsers = null;
 
   constructor() {
@@ -64,9 +65,11 @@ export default class SiteSettingComponent extends Component {
     this.isSecret = this.setting?.secret;
 
     const settingName = this.setting.setting;
+
     if (
-      settingName.includes("default_categories") ||
-      settingName.includes("default_tags")
+      !!settingName &&
+      (settingName.includes("default_categories") ||
+        settingName.includes("default_tags"))
     ) {
       this.messageBus.subscribe(`${settingName}`, this.onMessage);
     }
@@ -77,16 +80,21 @@ export default class SiteSettingComponent extends Component {
     const settingName = this.setting.setting;
 
     if (
-      settingName.includes("default_categories") ||
-      settingName.includes("default_tags")
+      !!settingName &&
+      (settingName.includes("default_categories") ||
+        settingName.includes("default_tags"))
     ) {
-      this.messageBus.subscribe(`${settingName}`, this.onMessage);
+      this.messageBus.subscribe(
+        `/site_setting/${settingName}/process`,
+        this.onMessage
+      );
     }
   }
 
   @bind
   async onMessage(membership) {
     this.status = membership.status;
+    this.progress = membership.progress;
   }
 
   @action
@@ -403,7 +411,7 @@ export default class SiteSettingComponent extends Component {
           />
 
           <Description @description={{this.setting.description}} />
-          <JobStatus @status={{this.status}} />
+          <JobStatus @status={{this.status}} @progress={{this.progress}} />
         {{else}}
           <this.resolvedComponent
             {{on "keydown" this._handleKeydown}}
@@ -420,7 +428,7 @@ export default class SiteSettingComponent extends Component {
           />
           {{#if this.displayDescription}}
             <Description @description={{this.setting.description}} />
-            <JobStatus @status={{this.status}} />
+            <JobStatus @status={{this.status}} @progress={{this.progress}} />
           {{/if}}
         {{/if}}
       </div>
