@@ -210,7 +210,6 @@ sl:
       search: "Išči"
     themes:
       default_description: "Privzeto"
-      broken_theme_alert: "Vaše spletno mesto morda ne bo delovalo, ker ima tema/komponenta napake."
     s3:
       regions:
         ap_northeast_1: "Asia Pacific (Tokyo)"
@@ -3654,6 +3653,8 @@ sl:
               content: "Admin"
             badges:
               content: "Značke"
+            filter:
+              content: "Filter"
             topics:
               content: "Tem"
             faq:
@@ -3724,6 +3725,9 @@ sl:
       spreadsheet:
         show: "Prikaži"
         about: "O nas"
+    filter:
+      description:
+        yesterday: "Včeraj"
     discovery:
       headings:
         categories: "Vse kategorije"
@@ -3732,7 +3736,7 @@ sl:
     admin:
       title: "Discourse Admin"
       moderator: "Moderator"
-      filter_reports: Filtriraj poročila
+      filter_reports: "Filtriraj poročila..."
       tags:
         remove_muted_tags_from_latest:
           always: "vedno"
@@ -3834,6 +3838,8 @@ sl:
               header_description: "Spodnji URLji se pogosto uporabljeni v prispevkih uporabnikov, ki so bili identificirani kot spamerji"
         embedding:
           title: "Vdelovanje"
+      theme_site_settings:
+        default_value: "Privzeto"
       search:
         title: "Išči"
         result_types:
@@ -4146,6 +4152,11 @@ sl:
         author: "Od %{author}"
         experimental_badge: "eksperimentalno"
         learn_more: "Več o tem"
+        filters:
+          all: "Vsi"
+          enabled: "Vključeno"
+          disabled: "Onemogočeno"
+          reset: "Ponastavi"
       backups:
         title: "Varnostne kopije"
         menu:
@@ -4206,6 +4217,7 @@ sl:
           disabled_filter: "Onemogočeno"
         theme:
           theme: "Videz"
+          filter_all: "Vsi"
           theme_name: "Ime videza"
           customize_desc: "Prilagodi:"
           title: "Videzi"
@@ -4257,6 +4269,11 @@ sl:
               too_large: "mora biti manj ali enako kot %{count}"
         colors:
           title: "Barve"
+          edit: "Uredi"
+          filters:
+            all: "Vsi"
+          active_badge:
+            text: "Aktivni"
           copy_name_prefix: "Kopija od"
           undo: "Razveljavi"
           revert: "Povrni"
@@ -4558,7 +4575,6 @@ sl:
         activity: Aktivnost
         like_count: Podeljeni / prejeti všečki
         last_100_days: "v zadnjih 100 dnevih"
-        private_topics_count: Privatne teme
         posts_read_count: Prebranih prispevkov
         post_count: Ustvarjenih prispevkov
         topics_entered: Ogledane teme

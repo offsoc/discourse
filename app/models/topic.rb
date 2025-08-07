@@ -11,6 +11,7 @@ class Topic < ActiveRecord::Base
   include Trashable
   include Searchable
   include LimitedEdit
+  include Localizable
   extend Forwardable
 
   EXTERNAL_ID_MAX_LENGTH = 50
@@ -30,8 +31,6 @@ class Topic < ActiveRecord::Base
   def_delegator :notifier, :toggle_mute, :toggle_mute
 
   attr_accessor :allowed_user_ids, :allowed_group_ids, :tags_changed, :includes_destination_category
-
-  has_many :topic_localizations, dependent: :destroy
 
   def self.max_fancy_title_length
     400
@@ -1922,11 +1921,13 @@ class Topic < ActiveRecord::Base
     @is_category_topic ||= Category.exists?(topic_id: self.id.to_i)
   end
 
-  def reset_bumped_at(post_id = nil)
+  def reset_bumped_at(post_or_post_id = nil)
     post =
-      (
-        if post_id
-          Post.find_by(id: post_id)
+      if post_or_post_id.is_a?(Post)
+        post_or_post_id
+      else
+        if post_or_post_id
+          Post.find_by(id: post_or_post_id)
         else
           ordered_posts.where(
             user_deleted: false,
@@ -1934,7 +1935,7 @@ class Topic < ActiveRecord::Base
             post_type: Post.types[:regular],
           ).last || first_post
         end
-      )
+      end
 
     return if !post
 
@@ -2135,22 +2136,11 @@ class Topic < ActiveRecord::Base
   end
 
   def has_localization?(locale = I18n.locale)
-    topic_localizations.exists?(locale: locale.to_s.sub("-", "_"))
+    localizations.exists?(locale: locale.to_s.sub("-", "_"))
   end
 
   def in_user_locale?
-    locale == I18n.locale.to_s
-  end
-
-  def get_localization(locale = I18n.locale)
-    locale_str = locale.to_s.sub("-", "_")
-
-    # prioritise exact match
-    if match = topic_localizations.find { |l| l.locale == locale_str }
-      return match
-    end
-
-    topic_localizations.find { |l| LocaleNormalizer.is_same?(l.locale, locale_str) }
+    LocaleNormalizer.is_same?(locale, I18n.locale)
   end
 
   private

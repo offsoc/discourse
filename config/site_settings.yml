@@ -367,11 +367,6 @@ basic:
   default_theme_id:
     default: -1
     hidden: true
-  default_dark_mode_color_scheme_id:
-    default: -1
-    type: enum
-    enum: "ColorSchemeSetting"
-    client: true
   relative_date_duration:
     client: true
     default: 30
@@ -568,6 +563,14 @@ basic:
     client: true
     enum: "InterfaceColorSelectorSetting"
     default: "disabled"
+    area: "interface"
+  floatkit_autocomplete_composer:
+    client: true
+    default: true
+    area: "interface"
+  floatkit_autocomplete_chat_composer:
+    client: true
+    default: true
     area: "interface"
 
 login:
@@ -932,7 +935,7 @@ users:
     client: true
     hidden: true
   anonymous_posting_allowed_groups:
-    default: "3|11" # auto group staff and trust_level_1
+    default: "1|2|11" # auto group admins, moderators and trust_level_1
     type: group_list
     allow_any: false
     refresh: true
@@ -1224,7 +1227,7 @@ posting:
     enum: "TrustLevelAndStaffSetting"
     hidden: true
   shared_drafts_allowed_groups:
-    default: "3" # auto group staff
+    default: "1|2" # auto group admins and moderators
     type: group_list
     allow_any: false
     refresh: true
@@ -1618,7 +1621,8 @@ posting:
     hidden: true
   rich_editor:
     client: true
-    default: false
+    default: true
+    hidden: true
     area: "posts_and_topics"
 
 content_localization:
@@ -1637,9 +1641,9 @@ content_localization:
     default: ""
     type: list
     client: true
-    list_type: named
+    list_type: locale
     allow_any: false
-    choices: "LocaleSiteSetting.values"
+    enum: "LocaleSiteSetting"
     area: "localization"
     validator: "ContentLocalizationLocalesValidator"
   content_localization_max_locales:
@@ -2269,6 +2273,19 @@ files:
     default: true
     client: true
     hidden: true
+  video_conversion_enabled:
+    default: false
+    validator: "VideoConversionEnabledValidator"
+  video_conversion_service:
+    type: enum
+    default: "aws_mediaconvert"
+    choices:
+      - "aws_mediaconvert"
+  mediaconvert_role_arn:
+    default: ""
+  mediaconvert_endpoint:
+    default: ""
+    hidden: true
 
 trust:
   default_trust_level:
@@ -2513,7 +2530,8 @@ trust:
     hidden: true
     area: "trust_levels"
   delete_all_posts_and_topics_allowed_groups:
-    default: ""
+    default: "1|2" # auto group admins, moderators
+    mandatory_values: "1|2" # auto group admins, moderators
     type: group_list
     allow_any: false
     refresh: true
@@ -2523,7 +2541,8 @@ trust:
     type: group_list
     area: "group_permissions"
   edit_all_post_groups:
-    default: "14"
+    default: "1|2|14" # auto group admins, moderators, and TL4
+    mandatory_values: "1|2" # auto group admins, moderators
     type: group_list
     area: "group_permissions"
 
@@ -2566,6 +2585,9 @@ security:
   moderators_view_emails:
     client: true
     default: false
+  moderators_view_ips:
+    default: true
+    client: true
   non_crawler_user_agents:
     hidden: true
     default: "trident|webkit|gecko|chrome|safari|msie|opera|goanna|discourse"
@@ -3802,6 +3824,13 @@ user_preferences:
   default_sidebar_show_count_of_new_items:
     default: false
     area: "navigation"
+  default_composition_mode:
+    default: 1
+    enum: "CompositionModeSiteSetting"
+    area: "posts_and_topics|user_defaults"
+  default_other_enable_markdown_monospace_font:
+    default: true
+    area: "posts_and_topics|user_defaults"
 
 api:
   retain_web_hook_events_period_days:
@@ -3908,6 +3937,13 @@ tags:
     hidden: true
   create_tag_allowed_groups:
     default: "1|2|13" # auto group admins, moderators, trust_level_3
+    mandatory_values: "1|2" # auto group admins, moderators
+    type: group_list
+    allow_any: false
+    refresh: true
+    area: "group_permissions"
+  edit_tags_allowed_groups:
+    default: "1|2" # auto group admins, moderators
     mandatory_values: "1|2" # auto group admins, moderators
     type: group_list
     allow_any: false
@@ -4070,6 +4106,9 @@ experimental:
       - auto
       - enabled
     default: "auto"
+  deactivate_widgets_rendering:
+    client: true
+    default: false
   enable_rich_text_paste:
     client: true
     default: true
@@ -4089,3 +4128,10 @@ experimental:
     client: true
     type: group_list
     default: ""
+  experimental_sidebar_messages_count_enabled_groups:
+    client: true
+    type: group_list
+    list_type: compact
+    default: ""
+    allow_any: false
+    refresh: true

@@ -229,6 +229,10 @@ function customizePostMenu(api, container) {
     "post-menu__after",
     class extends Component {
       static shouldRender(args) {
+        if (!siteSettings.post_voting_comment_enabled) {
+          return false;
+        }
+
         return (
           args.post.post_voting_has_votes !== undefined &&
           !args.post.reply_to_post_number &&
@@ -255,7 +259,7 @@ export default {
       return;
     }
 
-    withPluginApi("1.13.0", (api) => {
+    withPluginApi((api) => {
       initPlugin(api, container);
     });
   },

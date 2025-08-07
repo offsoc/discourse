@@ -62,7 +62,7 @@ RSpec.describe Guardian do
     end
   end
 
-  describe "can_send_private_message" do
+  describe "#can_send_private_message?" do
     fab!(:suspended_user) do
       Fabricate(:user, suspended_till: 1.week.from_now, suspended_at: 1.day.ago)
     end
@@ -84,6 +84,10 @@ RSpec.describe Guardian do
       expect(Guardian.new(user).can_send_private_message?(user)).to be_truthy
     end
 
+    it "returns true for staff users" do
+      expect(Guardian.new(admin).can_send_private_message?(user)).to be_truthy
+    end
+
     it "returns false when you are untrusted" do
       SiteSetting.personal_message_enabled_groups = Group::AUTO_GROUPS[:trust_level_2]
       user.update!(trust_level: TrustLevel[0])
@@ -93,13 +97,6 @@ RSpec.describe Guardian do
 
     it "returns true to another user" do
       expect(Guardian.new(user).can_send_private_message?(another_user)).to be_truthy
-    end
-
-    it "disallows pms to other users if trust level is not met" do
-      SiteSetting.personal_message_enabled_groups = Group::AUTO_GROUPS[:trust_level_2]
-      user.update!(trust_level: TrustLevel[1])
-      Group.user_trust_level_change!(user.id, TrustLevel[1])
-      expect(Guardian.new(user).can_send_private_message?(another_user)).to be_falsey
     end
 
     it "allows plugins to control if user can send PM" do
@@ -367,221 +364,6 @@ RSpec.describe Guardian do
 
     it "is true when target user is present" do
       expect(Guardian.new(moderator).can_view_action_logs?(user)).to be_truthy
-    end
-  end
-
-  describe "can_invite_to_forum?" do
-    fab!(:user)
-    fab!(:moderator)
-
-    it "returns true if user has sufficient trust level" do
-      SiteSetting.invite_allowed_groups = Group::AUTO_GROUPS[:trust_level_2]
-      expect(Guardian.new(trust_level_2).can_invite_to_forum?).to be_truthy
-      expect(Guardian.new(moderator).can_invite_to_forum?).to be_truthy
-    end
-
-    it "returns false if user trust level does not have sufficient trust level" do
-      SiteSetting.invite_allowed_groups = Group::AUTO_GROUPS[:trust_level_2]
-      expect(Guardian.new(trust_level_1).can_invite_to_forum?).to be_falsey
-    end
-
-    it "doesn't allow anonymous users to invite" do
-      expect(Guardian.new.can_invite_to_forum?).to be_falsey
-    end
-
-    it "returns true when the site requires approving users" do
-      SiteSetting.must_approve_users = true
-      expect(Guardian.new(trust_level_2).can_invite_to_forum?).to be_truthy
-    end
-
-    it "returns false when max_invites_per_day is 0" do
-      # let's also break it while here
-      SiteSetting.max_invites_per_day = "a"
-
-      expect(Guardian.new(user).can_invite_to_forum?).to be_falsey
-      # staff should be immune to max_invites_per_day setting
-      expect(Guardian.new(moderator).can_invite_to_forum?).to be_truthy
-    end
-
-    context "with groups" do
-      let(:groups) { [group, another_group] }
-
-      before do
-        user.change_trust_level!(TrustLevel[2])
-        group.add_owner(user)
-      end
-
-      it "returns false when user is not allowed to edit a group" do
-        expect(Guardian.new(user).can_invite_to_forum?(groups)).to eq(false)
-
-        expect(Guardian.new(admin).can_invite_to_forum?(groups)).to eq(true)
-      end
-
-      it "returns true when user is allowed to edit groups" do
-        another_group.add_owner(user)
-
-        expect(Guardian.new(user).can_invite_to_forum?(groups)).to eq(true)
-      end
-    end
-  end
-
-  describe "can_invite_to?" do
-    describe "regular topics" do
-      before do
-        SiteSetting.invite_allowed_groups = Group::AUTO_GROUPS[:trust_level_2]
-        user.update!(trust_level: 2)
-      end
-      fab!(:category) { Fabricate(:category, read_restricted: true) }
-      fab!(:topic)
-      fab!(:private_topic) { Fabricate(:topic, category: category) }
-      fab!(:user) { topic.user }
-      let(:private_category) { Fabricate(:private_category, group: group) }
-      let(:group_private_topic) { Fabricate(:topic, category: private_category) }
-      let(:group_owner) { group_private_topic.user.tap { |u| group.add_owner(u) } }
-
-      it "handles invitation correctly" do
-        expect(Guardian.new(nil).can_invite_to?(topic)).to be_falsey
-        expect(Guardian.new(moderator).can_invite_to?(nil)).to be_falsey
-        expect(Guardian.new(moderator).can_invite_to?(topic)).to be_truthy
-        expect(Guardian.new(trust_level_1).can_invite_to?(topic)).to be_truthy
-
-        SiteSetting.max_invites_per_day = 0
-
-        expect(Guardian.new(user).can_invite_to?(topic)).to be_truthy
-        # staff should be immune to max_invites_per_day setting
-        expect(Guardian.new(moderator).can_invite_to?(topic)).to be_truthy
-      end
-
-      it "returns false for normal user on private topic" do
-        expect(Guardian.new(user).can_invite_to?(private_topic)).to be_falsey
-      end
-
-      it "returns false for admin on private topic" do
-        expect(Guardian.new(admin).can_invite_to?(private_topic)).to be(false)
-      end
-
-      it "returns true for a group owner" do
-        group_owner.update!(trust_level: 2)
-        expect(Guardian.new(group_owner).can_invite_to?(group_private_topic)).to be_truthy
-      end
-
-      it "return true for normal users even if must_approve_users" do
-        SiteSetting.must_approve_users = true
-        expect(Guardian.new(user).can_invite_to?(topic)).to be_truthy
-        expect(Guardian.new(admin).can_invite_to?(topic)).to be_truthy
-      end
-
-      describe "for a private category for automatic and non-automatic group" do
-        let(:category) do
-          Fabricate(:category, read_restricted: true).tap do |category|
-            category.groups << automatic_group
-            category.groups << group
-          end
-        end
-
-        let(:topic) { Fabricate(:topic, category: category) }
-
-        it "should return true for an admin user" do
-          expect(Guardian.new(admin).can_invite_to?(topic)).to eq(true)
-        end
-
-        it "should return true for a group owner" do
-          group_owner.update!(trust_level: 2)
-          expect(Guardian.new(group_owner).can_invite_to?(topic)).to eq(true)
-        end
-
-        it "should return false for a normal user" do
-          expect(Guardian.new(user).can_invite_to?(topic)).to eq(false)
-        end
-      end
-
-      describe "for a private category for automatic groups" do
-        let(:category) do
-          Fabricate(:private_category, group: automatic_group, read_restricted: true)
-        end
-
-        let(:group_owner) { Fabricate(:user).tap { |user| automatic_group.add_owner(user) } }
-        let(:topic) { Fabricate(:topic, category: category) }
-
-        it "should return false for all type of users" do
-          expect(Guardian.new(admin).can_invite_to?(topic)).to eq(false)
-          expect(Guardian.new(group_owner).can_invite_to?(topic)).to eq(false)
-          expect(Guardian.new(user).can_invite_to?(topic)).to eq(false)
-        end
-      end
-    end
-
-    describe "private messages" do
-      fab!(:user)
-      fab!(:pm) { Fabricate(:private_message_topic, user: user) }
-
-      before do
-        user.change_trust_level!(TrustLevel[2])
-        moderator.change_trust_level!(TrustLevel[2])
-      end
-
-      context "when private messages are disabled" do
-        it "allows an admin to invite to the pm" do
-          expect(Guardian.new(admin).can_invite_to?(pm)).to be_truthy
-          expect(Guardian.new(user).can_invite_to?(pm)).to be_truthy
-        end
-      end
-
-      context "when user does not belong to personal_message_enabled_groups" do
-        before { SiteSetting.personal_message_enabled_groups = Group::AUTO_GROUPS[:staff] }
-
-        it "doesn't allow a regular user to invite" do
-          expect(Guardian.new(admin).can_invite_to?(pm)).to be_truthy
-          expect(Guardian.new(user).can_invite_to?(pm)).to be_falsey
-        end
-      end
-
-      context "when PM has reached the maximum number of recipients" do
-        before { SiteSetting.max_allowed_message_recipients = 2 }
-
-        it "doesn't allow a regular user to invite" do
-          expect(Guardian.new(user).can_invite_to?(pm)).to be_falsey
-        end
-
-        it "allows staff to invite" do
-          expect(Guardian.new(admin).can_invite_to?(pm)).to be_truthy
-          pm.grant_permission_to_user(moderator.email)
-          expect(Guardian.new(moderator).can_invite_to?(pm)).to be_truthy
-        end
-      end
-    end
-  end
-
-  describe "can_invite_via_email?" do
-    it "returns true for all (tl2 and above) users when sso is disabled, local logins are enabled, user approval is not required" do
-      expect(Guardian.new(trust_level_2).can_invite_via_email?(topic)).to be_truthy
-      expect(Guardian.new(moderator).can_invite_via_email?(topic)).to be_truthy
-      expect(Guardian.new(admin).can_invite_via_email?(topic)).to be_truthy
-    end
-
-    it "returns true for all users when sso is enabled" do
-      SiteSetting.discourse_connect_url = "https://www.example.com/sso"
-      SiteSetting.enable_discourse_connect = true
-
-      expect(Guardian.new(trust_level_2).can_invite_via_email?(topic)).to be_truthy
-      expect(Guardian.new(moderator).can_invite_via_email?(topic)).to be_truthy
-      expect(Guardian.new(admin).can_invite_via_email?(topic)).to be_truthy
-    end
-
-    it "returns false for all users when local logins are disabled" do
-      SiteSetting.enable_local_logins = false
-
-      expect(Guardian.new(trust_level_2).can_invite_via_email?(topic)).to be_falsey
-      expect(Guardian.new(moderator).can_invite_via_email?(topic)).to be_falsey
-      expect(Guardian.new(admin).can_invite_via_email?(topic)).to be_falsey
-    end
-
-    it "returns correct values when user approval is required" do
-      SiteSetting.must_approve_users = true
-
-      expect(Guardian.new(trust_level_2).can_invite_via_email?(topic)).to be_falsey
-      expect(Guardian.new(moderator).can_invite_via_email?(topic)).to be_truthy
-      expect(Guardian.new(admin).can_invite_via_email?(topic)).to be_truthy
     end
   end
 
@@ -1727,68 +1509,6 @@ RSpec.describe Guardian do
       expect(Guardian.new(user).can_delete?(nil)).to be_falsey
     end
 
-    context "with a Topic" do
-      it "returns false when not logged in" do
-        expect(Guardian.new.can_delete?(topic)).to be_falsey
-      end
-
-      it "returns false when not a moderator" do
-        expect(Guardian.new(Fabricate(:user)).can_delete?(topic)).to be_falsey
-      end
-
-      it "returns true when a moderator" do
-        expect(Guardian.new(moderator).can_delete?(topic)).to be_truthy
-      end
-
-      it "returns true when an admin" do
-        expect(Guardian.new(admin).can_delete?(topic)).to be_truthy
-      end
-
-      it "returns false for static doc topics" do
-        tos_topic = Fabricate(:topic, user: Discourse.system_user)
-        SiteSetting.tos_topic_id = tos_topic.id
-        expect(Guardian.new(admin).can_delete?(tos_topic)).to be_falsey
-      end
-
-      it "returns true for own topics" do
-        topic.update_attribute(:posts_count, 1)
-        topic.update_attribute(:created_at, Time.zone.now)
-        expect(Guardian.new(topic.user).can_delete?(topic)).to be_truthy
-      end
-
-      it "returns false if topic has replies" do
-        topic.update!(posts_count: 2, created_at: Time.zone.now)
-        expect(Guardian.new(topic.user).can_delete?(topic)).to be_falsey
-      end
-
-      it "returns true when tl4 can delete posts and topics" do
-        expect(Guardian.new(trust_level_4).can_delete?(topic)).to be_falsey
-        SiteSetting.delete_all_posts_and_topics_allowed_groups = Group::AUTO_GROUPS[:trust_level_4]
-        expect(Guardian.new(trust_level_4).can_delete?(topic)).to be_truthy
-      end
-
-      it "returns false if topic was created > 24h ago" do
-        topic.update!(posts_count: 1, created_at: 48.hours.ago)
-        expect(Guardian.new(topic.user).can_delete?(topic)).to be_falsey
-      end
-
-      context "when category group moderation is enabled" do
-        fab!(:group_user)
-
-        before { SiteSetting.enable_category_group_moderation = true }
-
-        it "returns false if user is not a member of the appropriate group" do
-          expect(Guardian.new(group_user.user).can_delete?(topic)).to be_falsey
-        end
-
-        it "returns true if user is a member of the appropriate group" do
-          Fabricate(:category_moderation_group, category: topic.category, group: group_user.group)
-
-          expect(Guardian.new(group_user.user).can_delete?(topic)).to be_truthy
-        end
-      end
-    end
-
     context "with a Post" do
       before { post.post_number = 2 }
 
@@ -2104,20 +1824,6 @@ RSpec.describe Guardian do
 
     it "should not allow an admin to revoke moderation from a non real user" do
       expect(Guardian.new(admin).can_revoke_moderation?(Discourse.system_user)).to be(false)
-    end
-  end
-
-  describe "#can_see_invite_details?" do
-    it "is false without a logged in user" do
-      expect(Guardian.new(nil).can_see_invite_details?(user)).to be_falsey
-    end
-
-    it "is false without a user to look at" do
-      expect(Guardian.new(user).can_see_invite_details?(nil)).to be_falsey
-    end
-
-    it "is true when looking at your own invites" do
-      expect(Guardian.new(user).can_see_invite_details?(user)).to be_truthy
     end
   end
 
@@ -2930,126 +2636,6 @@ RSpec.describe Guardian do
     end
   end
 
-  describe "Tags" do
-    context "with tagging disabled" do
-      before { SiteSetting.tagging_enabled = false }
-
-      it "can_create_tag returns false" do
-        expect(Guardian.new(admin).can_create_tag?).to be_falsey
-      end
-
-      it "can_admin_tags returns false" do
-        expect(Guardian.new(admin).can_admin_tags?).to be_falsey
-      end
-
-      it "can_admin_tag_groups returns false" do
-        expect(Guardian.new(admin).can_admin_tag_groups?).to be_falsey
-      end
-    end
-
-    context "when tagging is enabled" do
-      before do
-        SiteSetting.tagging_enabled = true
-        SiteSetting.tag_topic_allowed_groups = Group::AUTO_GROUPS[:trust_level_1]
-      end
-
-      context "when minimum trust level to create tags is 3" do
-        before do
-          SiteSetting.create_tag_allowed_groups = "1|3|#{Group::AUTO_GROUPS[:trust_level_3]}"
-        end
-
-        describe "#can_see_tag?" do
-          it "is always true" do
-            expect(Guardian.new.can_see_tag?(anything)).to be_truthy
-          end
-        end
-
-        describe "can_create_tag" do
-          it "returns false if trust level is too low" do
-            expect(Guardian.new(trust_level_2).can_create_tag?).to be_falsey
-          end
-
-          it "returns true if trust level is high enough" do
-            expect(Guardian.new(trust_level_3).can_create_tag?).to be_truthy
-          end
-
-          it "returns true for staff" do
-            expect(Guardian.new(admin).can_create_tag?).to be_truthy
-            expect(Guardian.new(moderator).can_create_tag?).to be_truthy
-          end
-        end
-
-        describe "can_tag_topics" do
-          it "returns false if trust level is too low" do
-            expect(
-              Guardian.new(
-                Fabricate(:user, trust_level: 0, refresh_auto_groups: true),
-              ).can_tag_topics?,
-            ).to be_falsey
-          end
-
-          it "returns true if trust level is high enough" do
-            expect(
-              Guardian.new(
-                Fabricate(:user, trust_level: 1, refresh_auto_groups: true),
-              ).can_tag_topics?,
-            ).to be_truthy
-          end
-
-          it "returns true for staff" do
-            expect(Guardian.new(admin).can_tag_topics?).to be_truthy
-            expect(Guardian.new(moderator).can_tag_topics?).to be_truthy
-          end
-        end
-      end
-
-      context "when staff and admin groups are allowed to create tags" do
-        before do
-          SiteSetting.min_trust_to_create_tag = "staff"
-          SiteSetting.create_tag_allowed_groups =
-            "#{Group::AUTO_GROUPS[:staff]}|#{Group::AUTO_GROUPS[:admins]}"
-        end
-
-        it "returns false if not staff" do
-          expect(Guardian.new(trust_level_4).can_create_tag?).to eq(false)
-        end
-
-        it "returns true if staff" do
-          expect(Guardian.new(admin).can_create_tag?).to be_truthy
-          expect(Guardian.new(moderator).can_create_tag?).to be_truthy
-        end
-      end
-
-      context "when only admin group is allowed to create tags" do
-        before do
-          SiteSetting.min_trust_to_create_tag = "admin"
-          SiteSetting.create_tag_allowed_groups = Group::AUTO_GROUPS[:admins]
-        end
-
-        it "returns true if admin or moderator" do
-          expect(Guardian.new(admin).can_create_tag?).to be_truthy
-          expect(Guardian.new(moderator).can_create_tag?).to be_truthy
-        end
-      end
-    end
-
-    context "when tagging PMs" do
-      it "pm_tags_allowed_for_groups contains everyone" do
-        SiteSetting.pm_tags_allowed_for_groups = "#{Group::AUTO_GROUPS[:everyone]}"
-
-        expect(Guardian.new(user).can_tag_pms?).to be_truthy
-      end
-
-      it "pm_tags_allowed_for_groups contains a group" do
-        SiteSetting.pm_tags_allowed_for_groups = "#{group.id}"
-        group.add(member)
-
-        expect(Guardian.new(user).can_tag_pms?).to be_falsey
-        expect(Guardian.new(member).can_tag_pms?).to be_truthy
-      end
-    end
-  end
-
   describe "#can_see_group?" do
     it "Correctly handles owner visible groups" do
       group = Group.new(name: "group", visibility_level: Group.visibility_levels[:owners])
@@ -3696,6 +3282,30 @@ RSpec.describe Guardian do
           )
         guardian = Guardian.new(user, ActionDispatch::Request.new(env))
         expect(guardian.can_delete_reviewable_queued_post?(queued_post)).to eq(true)
+      end
+    end
+  end
+
+  describe "#can_see_ip?" do
+    let(:guardian_admin) { Guardian.new(admin) }
+    let(:guardian_moderator) { Guardian.new(moderator) }
+
+    context "when user is an admin" do
+      it "returns true" do
+        expect(guardian_admin.can_see_ip?).to eq(true)
+      end
+    end
+
+    context "when user is a moderator" do
+      before { SiteSetting.moderators_view_ips = true }
+
+      it "returns true if moderators_view_ips is enabled" do
+        expect(guardian_moderator.can_see_ip?).to eq(true)
+      end
+
+      it "returns false if moderators_view_ips is disabled" do
+        SiteSetting.moderators_view_ips = false
+        expect(guardian_moderator.can_see_ip?).to eq(false)
       end
     end
   end

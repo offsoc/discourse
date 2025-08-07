@@ -201,19 +201,12 @@ pt_BR:
       search: "Pesquisar"
     themes:
       default_description: "Padrão"
-      broken_theme_alert: "Seu site pode não funcionar porque o tema/componente tem erros."
       error_caused_by: "Causado por '%{name}'. <a target='blank' href='%{path}'>Clique aqui</a> para atualizar, reconfigurar ou desabilitar."
       only_admins: "(esta mensagem é mostrada somente aos(às) administradores(es) do site)"
     broken_decorator_alert: "As postagens podem não ser exibidas corretamente porque um dos decoradores de conteúdo de postagem em seu site gerou um erro."
     broken_page_change_alert: "Houve um erro no identificador onPageChange. Confira as ferramentas de desenvolvedor do navegador para obter mais informações."
     broken_plugin_alert: "Causado(a) pelo plugin \"%{name}\""
     broken_transformer_alert: "Ocorreu um erro. Seu site pode não funcionar corretamente."
-    critical_deprecation:
-      notice: "<b>[Aviso da administração]</b> Um dos seus temas ou plugins precisa ser atualizado para ser compatível com as próximas mudanças do Discourse."
-      id: "(id:<em>%{id}</em>)"
-      linked_id: "(id:<a href='%{url}' target='_blank'><em>%{id}</em></a>)"
-      theme_source: "Tema identificado: <a target='_blank' href='%{path}'>\"%{name}\"</a>."
-      plugin_source: "Plugin identificado: \"%{name}\""
     s3:
       regions:
         ap_northeast_1: "Ásia Pacífico (Tóquio)"
@@ -1354,7 +1347,6 @@ pt_BR:
         description: "Pular emblemas e dicas de integração de novo(a) usuário(a)"
       reset_seen_user_tips: "Mostrar dicas do(a) usuário(a) novamente"
       theme_default_on_all_devices: "Definir este tema como padrão em todos os meus dispositivos"
-      color_scheme_default_on_all_devices: "Definir paleta de cores padrão em todos os meus dispositivos"
       color_scheme: "Paleta de cores"
       color_schemes:
         default_description: "Tema padrão"
@@ -1364,6 +1356,10 @@ pt_BR:
         regular: "Normal"
         dark: "Modo escuro"
         default_dark_scheme: "(padrão do site)"
+        interface_modes:
+          auto: "Automático"
+          light: "Claro"
+          dark: "Escuro"
       dark_mode: "Modo escuro"
       dark_mode_enable: "Ativar a paleta de cores do modo escuro automaticamente"
       text_size_default_on_all_devices: "Definir este tamanho de texto como padrão em todos os meus dispositivos"
@@ -4835,6 +4831,8 @@ pt_BR:
             badges:
               content: "Emblemas"
               title: "Todos os emblemas disponíveis para ganhar"
+            filter:
+              content: "Filtro"
             topics:
               content: "Tópicos"
               title: "Todos os tópicos"
@@ -4990,6 +4988,12 @@ pt_BR:
           save: "Salvar como..."
     powered_by_discourse: "Com tecnologia Discourse"
     safari_15_warning: "Em breve, seu navegador se tornará incompatível com esta comunidade. Para continuar participando, por favor, atualize seu navegador ou <a href='%{url}'>saiba mais</a>."
+    filter:
+      description:
+        yesterday: "Ontem"
+        last_week: "Semana passada"
+        last_month: "Mês passado"
+        last_year: "Ano passado"
     discovery:
       headings:
         all:
@@ -5012,7 +5016,7 @@ pt_BR:
     admin:
       title: "Administrador(a) do Discourse"
       moderator: "Moderador(a)"
-      filter_reports: Filtrar relatórios
+      filter_reports: "Filtrar relatórios..."
       tags:
         remove_muted_tags_from_latest:
           always: "sempre"
@@ -5269,7 +5273,6 @@ pt_BR:
               header_description: "Ver um log de pesquisas que foram realizadas"
         plugins:
           title: "Plugins instalados"
-          header_description: "Plugins do Discourse instalados ou que já vêm pré-instalados com a hospedagem do Discourse serão mostrados nesta lista"
         api_keys:
           title: "Chaves de API"
           header_description: "Com o recurso de chaves de API, você pode integrar o Discourse com sistemas externos e automatizar ações de forma segura. Os(as) administradores(as) podem criar chaves com escopos específicos para controlar o acesso a recursos e dados confidenciais. Com o escopo, essa funcionalidade é limitada, melhorando a segurança."
@@ -5279,6 +5282,9 @@ pt_BR:
         embedding:
           title: "Incorporar"
           header_description: "Com o Discourse, você pode incorporar os componentes de um tópico em um site remoto através de uma API de java que cria um IFRAME"
+      theme_site_settings:
+        setting: "Configuração"
+        default_value: "Padrão"
       search:
         title: "Pesquisar"
         result_types:
@@ -5995,6 +6001,11 @@ pt_BR:
         author: "De %{author}"
         experimental_badge: "experimental"
         learn_more: "Saiba mais"
+        filters:
+          all: "Todos"
+          enabled: "Ativada"
+          disabled: "Desativada"
+          reset: "Redefinir"
       navigation_menu:
         sidebar: "Barra lateral"
         header_dropdown: "Menu dropdown de cabeçalho"
@@ -6120,7 +6131,8 @@ pt_BR:
           theme: "Tema"
           component: "Componente"
           components: "Componentes"
-          search_placeholder: "digite para pesquisar…"
+          filter_all: "Todos"
+          filter_user_selectable: "Selecionável por usuário(a)"
           theme_name: "Nome do tema"
           component_name: "Nome do componente"
           themes_intro: "Selecione um tema existente ou instale um novo para começar"
@@ -6249,11 +6261,7 @@ pt_BR:
           up_to_date: "O tema está atualizado. Última verificação:"
           has_overwritten_history: "A versão atual do tema não existe mais porque o histórico de Git foi sobrescrito por um envio de push forçado."
           add: "Adicionar"
-          theme_settings: "Configurações do tema"
-          edit_objects_theme_setting: "Editor de configurações de objetos"
-          overriden_settings_explanation: "As configurações substituídas são marcadas com um ponto e têm uma cor destacada. Para redefinir essas configurações para o valor padrão, pressione o botão de reinicialização próximo a elas."
           no_settings: "Este tema não tem configurações."
-          theme_translations: "Traduções do tema"
           empty: "Nenhum item"
           commits_behind:
             one: "O tema tem uma diferença de %{count} confirmação!"
@@ -6339,7 +6347,12 @@ pt_BR:
             title: "Selecionar paleta de cores básicas"
             description: "Paleta básica:"
           title: "Cores"
-          edit: "Editar paletas de cores"
+          edit: "Editar"
+          filters:
+            all: "Tudo"
+            user_selectable: "Selecionável por usuário(a)"
+          active_badge:
+            text: "Ativo(a)"
           long_title: "Paletas de cores"
           about: "Altere as cores usadas nos seus temas. Crie um novo esquema de cores para começar."
           new_name: "Nova paleta de cores"
@@ -6971,7 +6984,7 @@ pt_BR:
         activity: Atividade
         like_count: Curtidas dadas/recebidas
         last_100_days: "nos últimos 100 dias"
-        private_topics_count: Tópicos privados
+        private_topics_count: Mensagens pessoais
         posts_read_count: Postagens lidas
         post_count: Postagens criadas
         second_factor_enabled: Autenticação de dois fatores ativada

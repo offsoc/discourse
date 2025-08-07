@@ -165,12 +165,9 @@ id:
       search: "Cari"
     themes:
       default_description: "Asal"
-      broken_theme_alert: "Situs Anda mungkin tidak akan bekerja karena suatu tema/komponen memiliki masalah."
       error_caused_by: "Disebabkan oleh '%{name}'. <a target='blank' href='%{path}'>Klik di sini</a> untuk memperbarui, mengkonfigurasi ulang, atau menonaktifkan."
       only_admins: "(pesan ini hanya ditampilkan kepada administrator situs)"
     broken_decorator_alert: "Kiriman mungkin tidak ditampilkan dengan benar karena salah satu dekorator konten kiriman pada situs Anda menimbulkan kesalahan."
-    critical_deprecation:
-      plugin_source: "Plugin yang teridentifikasi: '%{name}'"
     s3:
       regions:
         ap_northeast_1: "Asia Pacific (Tokyo)"
@@ -2234,6 +2231,8 @@ id:
               content: "Tentang"
             admin:
               content: "Admin"
+            filter:
+              content: "Filter"
             topics:
               content: "Topik"
               title: "Semua topik"
@@ -2309,7 +2308,7 @@ id:
     admin:
       title: "Admin Discourse"
       moderator: "Moderator"
-      filter_reports: Filter laporan
+      filter_reports: "Filter laporan..."
       tags:
         remove_muted_tags_from_latest:
           always: "selalu"
@@ -2352,6 +2351,8 @@ id:
               title: "Menerima"
             rejected:
               title: "Ditolak"
+      theme_site_settings:
+        default_value: "Asal"
       search:
         title: "Cari"
         result_types:
@@ -2528,6 +2529,11 @@ id:
         enabled: "Diaktifkan?"
         change_settings_short: "Pengaturan"
         settings_disabled: "Plugin ini hanya dapat diaktifkan atau dinonaktifkan, tidak memiliki pengaturan tambahan."
+        filters:
+          all: "Semua"
+          enabled: "Diaktifkan"
+          disabled: "Dinonaktifkan"
+          reset: "Reset"
       backups:
         menu:
           logs: "Log"
@@ -2566,6 +2572,7 @@ id:
           disabled_filter: "Dinonaktifkan"
         theme:
           theme: "Tema"
+          filter_all: "Semua"
           customize_desc: "Sesuaikan:"
           create: "Buat"
           create_type: "Tipe"
@@ -2598,6 +2605,11 @@ id:
               too_large: "harus sama dengan atau kurang dari %{count}"
         colors:
           title: "Warna"
+          edit: "Ubah"
+          filters:
+            all: "Semua"
+          active_badge:
+            text: "Aktif"
           undo: "Batalkan perintah"
           revert: "Dibalik"
           primary:

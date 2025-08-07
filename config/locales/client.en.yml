@@ -155,6 +155,105 @@ en:
       placeholder: date
       from_placeholder: "from date"
       to_placeholder: "to date"
+    languages:
+      ar:
+        name: Arabic
+      be:
+        name: Belarusian
+      bg:
+        name: Bulgarian
+      bs_BA:
+        name: Bosnian
+      ca:
+        name: Catalan
+      cs:
+        name: Czech
+      da:
+        name: Danish
+      de:
+        name: German
+      el:
+        name: Greek
+      en:
+        name: English (US)
+      en_GB:
+        name: English (UK)
+      es:
+        name: Spanish
+      et:
+        name: Estonian
+      fa_IR:
+        name: Persian
+      fi:
+        name: Finnish
+      fr:
+        name: French
+      gl:
+        name: Galician
+      he:
+        name: Hebrew
+      hr:
+        name: Croatian
+      hu:
+        name: Hungarian
+      hy:
+        name: Armenian
+      id:
+        name: Indonesian
+      it:
+        name: Italian
+      ja:
+        name: Japanese
+      ko:
+        name: Korean
+      lt:
+        name: Lithuanian
+      lv:
+        name: Latvian
+      nb_NO:
+        name: Norwegian Bokmål
+      nl:
+        name: Dutch
+      pl_PL:
+        name: Polish
+      pt:
+        name: Portuguese
+      pt_BR:
+        name: Portuguese
+      ro:
+        name: Romanian
+      ru:
+        name: Russian
+      sk:
+        name: Slovak
+      sl:
+        name: Slovene
+      sq:
+        name: Albanian
+      sr:
+        name: Serbian
+      sv:
+        name: Swedish
+      sw:
+        name: Swahili
+      te:
+        name: Telugu
+      th:
+        name: Thai
+      tr_TR:
+        name: Turkish
+      ug:
+        name: Uyghur
+      uk:
+        name: Ukrainian
+      ur:
+        name: Urdu
+      vi:
+        name: Vietnamese
+      zh_TW:
+        name: Chinese
+      zh_CN:
+        name: Chinese Simplified
     share:
       topic_html: 'Topic: <span class="topic-title">%{topicTitle}</span>'
       post: "post #%{postNumber} by @%{username}"
@@ -229,7 +328,7 @@ en:
 
     themes:
       default_description: "Default"
-      broken_theme_alert: "Your site may not work because a theme / component has errors."
+      broken_theme_alert: "Your site may not work because a theme / component has errors. Check the browser console for more information."
       error_caused_by: "Caused by '%{name}'. <a target='blank' href='%{path}'>Click here</a> to update, reconfigure or disable."
       only_admins: "(this message is only shown to site administrators)"
 
@@ -1444,16 +1543,20 @@ en:
         description: "Skip new user onboarding tips and badges"
       reset_seen_user_tips: "Show user tips again"
       theme_default_on_all_devices: "Make this the default theme on all my devices"
-      color_scheme_default_on_all_devices: "Set default color palette on all my devices"
+      color_scheme_default_on_all_devices: "Set default color palette and mode on all my devices"
       color_scheme: "Color Palette"
       color_schemes:
         default_description: "Theme default"
-        disable_dark_scheme: "Same as regular"
         dark_instructions: "You can preview the dark mode color palette by toggling your device's dark mode."
         undo: "Reset"
-        regular: "Regular"
+        regular: "Light mode"
         dark: "Dark mode"
-        default_dark_scheme: "(site default)"
+        interface_mode: "Mode"
+        interface_mode_instructions: "‘Auto’ uses your system’s preferences for light or dark mode."
+        interface_modes:
+          auto: "Auto"
+          light: "Light"
+          dark: "Dark"
       dark_mode: "Dark Mode"
       dark_mode_enable: "Enable automatic dark mode color palette"
       text_size_default_on_all_devices: "Make this the default text size on all my devices"
@@ -1462,6 +1565,7 @@ en:
       enable_quoting: "Enable quote reply for highlighted text"
       enable_smart_lists: "Enable smart lists when writing in the composer"
       enable_defer: "Enable mark topics as unread"
+      enable_markdown_monospace_font: "Use monospace font in composer's Markdown mode"
       experimental_sidebar:
         enable: "Enable sidebar"
         options: "Options"
@@ -2681,6 +2785,9 @@ en:
     welcome_banner_location:
       above_topic_content: "Above topic content"
       below_site_header: "Below site header"
+    composition_mode:
+      markdown: "Markdown"
+      rich: "Rich text"
 
     shortcut_modifier_key:
       shift: "Shift"
@@ -2876,7 +2983,6 @@ en:
       italic_label: "I"
       italic_title: "Emphasis"
       italic_text: "emphasized text"
-      heading_label: "H"
       heading_title: "Headings"
       heading_level_n: "Heading %{levelNumber}"
       heading_level_n_title: "Heading %{levelNumber}"
@@ -5214,6 +5320,9 @@ en:
             badges:
               content: "Badges"
               title: "All the badges available to earn"
+            filter:
+              content: "Filter"
+              title: "Filter topics by category, tag, or other criteria"
             topics:
               content: "Topics"
               title: "All topics"
@@ -5375,6 +5484,13 @@ en:
     powered_by_discourse: "Powered by Discourse"
     safari_15_warning: "Your browser will soon be incompatible with this community. To keep participating here, please upgrade your browser or <a href='%{url}'>learn more</a>."
 
+    filter:
+      placeholder: "Filter topics by category, tag, or other criteria"
+      description:
+        yesterday: "Yesterday"
+        last_week: "Last week"
+        last_month: "Last month"
+        last_year: "Last year"
     discovery:
       headings:
         all:
@@ -5458,7 +5574,8 @@ en:
     admin:
       title: "Discourse Admin"
       moderator: "Moderator"
-      filter_reports: Filter reports
+      filter_reports: "Filter reports..."
+      filter_reports_no_results: "No reports match your filter"
 
       tags:
         remove_muted_tags_from_latest:
@@ -5712,7 +5829,7 @@ en:
           header_description: "Watched words are moderation tools that can perform multiple different actions including blocking, censoring, linking, or flagging posts containing certain words"
         color_palettes:
           title: "Color palettes"
-          header_description: "Color palettes define the core colors used across your site’s interface, while themes can provide additional styling, layouts, and components. Both can work together to create your site’s unique look and feel, and both can be made available for users to select their preference."
+          header_description: "These palettes control the colors used throughout your community. When you make a palette user selectable, members can choose their preferred colors from their preferences."
         emoji:
           title: "Emoji"
           header_description: "Add new emoji that will be available to everyone. Select multiple files to create emojis using their file names. The selected group will be used for all files that are added at the same time."
@@ -5793,7 +5910,7 @@ en:
               header_description: "View a log of searches that have been performed"
         plugins:
           title: "Installed plugins"
-          header_description: "Any Discourse plugins that you have installed, or plugins that come preinstalled with Discourse hosting, will appear in this list"
+          header_description: "Plugins enhance your community with additional features. Both preinstalled and custom plugins are listed below."
         api_keys:
           title: "API keys"
           header_description: "The API keys feature lets you securely integrate Discourse with external systems and automate actions. Admins can create keys with specific scopes to control access to resources and sensitive data. Scopes limit functionality, ensuring enhanced security."
@@ -6500,7 +6617,7 @@ en:
           install: "Install"
           themes:
             title: "Themes"
-            description: "Site-wide themes that change the overall look and feel of your site for all users. Want to check which site settings your themes override? <a href=\"%{themeSiteSettingsUrl}\">View theme site settings</a>"
+            description: 'Site-wide themes that change the overall look and feel of your site for all users. Want to check which site settings your themes override? <a href="%{themeSiteSettingsUrl}">View theme site settings</a>'
             themes_intro: "Install a new theme to get started, or create your own from scratch using these resources."
             new_theme: "New theme"
             back: "Back to themes"
@@ -6536,7 +6653,7 @@ en:
             filter_by_used: "Used"
             filter_by_unused: "Unused"
             filter_by_updates_available: "Updates available"
-            search_components: "Type a component name"
+            search_components: "Filter by component name or description..."
             new_update_for_component: "New update available for %{name}!"
             component_up_to_date: '"%{name}" is up to date.'
             updated_successfully: '"%{name}" has been updated successfully.'
@@ -6593,6 +6710,14 @@ en:
         experimental_badge: "experimental"
         learn_more: "Learn more"
         preinstalled: "Preinstalled"
+        filters:
+          all: "All"
+          enabled: "Enabled"
+          disabled: "Disabled"
+          preinstalled: "Preinstalled"
+          search_placeholder: "Search plugins..."
+          reset: "Reset"
+          no_results: "No plugins found matching your filters"
 
       navigation_menu:
         sidebar: "Sidebar"
@@ -6724,7 +6849,10 @@ en:
           theme: "Theme"
           component: "Component"
           components: "Components"
-          search_placeholder: "type to search…"
+          search_placeholder: "Filter by theme name or description..."
+          filter_all: "All"
+          filter_user_selectable: "User selectable"
+          no_themes_found: "No themes match your filters"
           theme_name: "Theme name"
           component_name: "Component name"
           themes_intro: "Select an existing theme or install a new one to get started"
@@ -6766,9 +6894,12 @@ en:
           color_scheme_user_selectable: "Color palette can be selected by users"
           auto_update: "Auto update when Discourse is updated"
           color_scheme: "Color Palette"
+          dark_color_scheme: "Dark Color Palette"
           edit_color_scheme: "Edit Color Palette"
+          edit_dark_color_scheme: "Edit DarkWColor Palette"
           default_light_scheme: "Light (default)"
           color_scheme_select: "Select colors to be used by theme"
+          dark_color_scheme_select: "Select colors to be used by theme in dark mode"
           custom_sections: "Custom sections:"
           theme_components: "Theme Components"
           add_all_themes: "Add all themes"
@@ -6868,7 +6999,7 @@ en:
           theme_site_settings: "Settings the theme can override"
           edit_objects_theme_setting: "Objects setting editor"
           overriden_settings_explanation: "Changes from the default are marked with a dot and highlight. Click Reset to reset to the default."
-          overriden_site_settings_explanation: "Site settings the theme can customize. Click Reset to restore the theme’s default. If none is set, the site setting default is used. You can see all site settings being overridden by themes at <a href='%{themeSiteSettingsConfigUrl}'>the theme site settings config page</a>."
+          overriden_site_settings_explanation: "Site settings the theme can customize. Click Reset to restore to the site setting's default value. You can see all site settings being overridden by themes at <a href='%{themeSiteSettingsConfigUrl}'>the theme site settings config page</a>."
           no_settings: "This theme has no settings."
           theme_translations: "Theme translations"
           empty: "No items"
@@ -6965,8 +7096,32 @@ en:
           select_base:
             title: "Select base color palette"
             description: "Base palette:"
+          preference_warning: "You've changed <a href='%{link}'>your personal theme settings</a>, so palette changes may not be visible to you. Visitors that haven't changed their defaults will still see the changes you make here."
           title: "Colors"
-          edit: "Edit color palettes"
+          edit: "Edit"
+          set_default_light: "Set as light palette on default theme (%{theme})"
+          set_default_dark: "Set as dark palette on default theme (%{theme})"
+          set_default_success: "%{schemeName} set as active palette for %{themeName}"
+          saved_refreshing: "Saved! Refreshing colors..."
+          from_theme: "From theme: %{name}"
+          filters:
+            search_placeholder: "Filter by palette or theme name..."
+            all: "All"
+            user_selectable: "User selectable"
+            from_theme: "From theme"
+            no_results: "No color palettes found"
+          active_light_badge:
+            text: "Active light"
+            title: "Active light color palette"
+            reset: "Reset filters"
+          active_dark_badge:
+            text: "Active dark"
+            title: "Active light color palette"
+          active_both_badge:
+            text: "Active light and dark"
+            title: "Active light and dark color palette"
+          system_palette: "This is a built-in color palette, it cannot be edited or deleted."
+          back_to_colors: "Back to color palettes"
           long_title: "Color palettes"
           about: "Modify the colors used by your themes. Create a new color palette to start."
           new_name: "New color palette"
@@ -7169,6 +7324,7 @@ en:
           modal_title: "Details"
           no_previous: "There is no previous value."
           deleted: "No new value. The record was deleted."
+          filter_date_time: "Filter date and time"
           actions:
             permanently_delete_post_revisions: "permanently delete post revisions"
             delete_user: "delete user"
@@ -7889,6 +8045,7 @@ en:
 
         field_types:
           text: "Text"
+          textarea: "Textarea"
           confirm: "Confirmation"
           dropdown: "Dropdown"
           multiselect: "Multiselect"

@@ -5,6 +5,8 @@ module DiscoursePostEvent
     PUBLIC_GROUP = "trust_level_0"
     MIN_NAME_LENGTH = 5
     MAX_NAME_LENGTH = 255
+    MAX_DESCRIPTION_LENGTH = 1000
+
     self.table_name = "discourse_post_event_events"
     self.ignored_columns = %w[starts_at ends_at]
 
@@ -27,6 +29,7 @@ module DiscoursePostEvent
                 in: MIN_NAME_LENGTH..MAX_NAME_LENGTH,
               },
               unless: ->(event) { event.name.blank? }
+    validates :description, length: { maximum: MAX_DESCRIPTION_LENGTH }
 
     validate :raw_invitees_length
     validate :ends_before_start
@@ -64,13 +67,23 @@ module DiscoursePostEvent
       next_dates = calculate_next_date
       return if !next_dates
 
-      event_dates.create!(
-        starts_at: next_dates[:starts_at],
-        ends_at: next_dates[:ends_at],
-      ) do |event_date|
-        if next_dates[:ends_at] && next_dates[:ends_at] < Time.current
-          event_date.finished_at = next_dates[:ends_at]
-        end
+      date_args = { starts_at: next_dates[:starts_at], ends_at: next_dates[:ends_at] }
+      if next_dates[:ends_at] && next_dates[:ends_at] < Time.current
+        date_args[:finished_at] = next_dates[:ends_at]
+      end
+
+      existing_date = event_dates.find_by(starts_at: date_args[:starts_at])
+
+      if existing_date && existing_date.ends_at == date_args[:ends_at] &&
+           existing_date.finished_at == date_args[:finished_at]
+        # exact same state in DB, this is a dupe call, return early
+        return
+      end
+
+      if existing_date
+        existing_date.update!(date_args)
+      else
+        event_dates.create!(date_args)
       end
 
       invitees.where.not(status: Invitee.statuses[:going]).update_all(status: nil, notified: false)
@@ -220,6 +233,7 @@ module DiscoursePostEvent
           topic_title: self.name || post.topic.title,
           display_username: post.user.username,
           message: message,
+          event_name: self.name,
         }.to_json,
       }
 
